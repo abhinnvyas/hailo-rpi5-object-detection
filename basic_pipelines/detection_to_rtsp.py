@@ -13,6 +13,15 @@ from hailo_apps_infra.hailo_rpi_common import (
 )
 from hailo_apps_infra.detection_pipeline import GStreamerDetectionApp
 
+from hailo_apps_infra.hailo_pipelines import (
+    SOURCE_PIPELINE,
+    INFERENCE_PIPELINE,
+    INFERENCE_PIPELINE_WRAPPER,
+    TRACKER_PIPELINE,
+    USER_CALLBACK_PIPELINE
+)
+
+
 class CustomDetectionApp(GStreamerDetectionApp):
     def get_pipeline_string(self):
         # Your custom GStreamer pipeline with streaming
