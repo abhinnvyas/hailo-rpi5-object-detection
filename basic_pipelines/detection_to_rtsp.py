@@ -13,16 +13,24 @@ from hailo_apps_infra.hailo_rpi_common import (
 )
 from hailo_apps_infra.detection_pipeline import GStreamerDetectionApp
 
-from hailo_apps_infra.hailo_pipelines import (
-    SOURCE_PIPELINE,
-    INFERENCE_PIPELINE,
-    INFERENCE_PIPELINE_WRAPPER,
-    TRACKER_PIPELINE,
-    USER_CALLBACK_PIPELINE
-)
 
+def SOURCE_PIPELINE(source="/dev/video0", width=640, height=480):
+    return f"v4l2src device={source} ! video/x-raw, width={width}, height={height}, format=YUY2 ! videoconvert"
+
+def INFERENCE_PIPELINE(model_path="/home/pi/yolov5.hef"):
+    return f"hailonet hef-path={model_path} ! hailofilter"
+
+def INFERENCE_PIPELINE_WRAPPER(inner):
+    return f"{inner}"
+
+def TRACKER_PIPELINE(class_id=1):
+    return f"hailotracker class-id={class_id}"
+
+def USER_CALLBACK_PIPELINE():
+    return "appsink name=appsink emit-signals=true"
 
 class CustomDetectionApp(GStreamerDetectionApp):
+    
     def get_pipeline_string(self):
         # Your custom GStreamer pipeline with streaming
         pipeline_string = (
