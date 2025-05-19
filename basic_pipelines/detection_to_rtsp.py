@@ -20,12 +20,13 @@ class GStreamerRTSPApp(GStreamerDetectionApp):
         super().__init__(app_callback, user_data, parser)
         
         # Override the video source pipeline with an RTSP stream
-        self.video_source = (
-            'rtspsrc location=rtsp://admin:123456Ai@192.168.1.73:554/snl/live/1/1 latency=100 ! '
-            'decodebin ! videoconvert ! videoscale ! '
-            'video/x-raw,format=RGB,width=640,height=480 ! '
-            'appsink name=video_input'
-        )
+        print("Video Source: ",self.video_source)
+        # self.video_source = (
+        #     'rtspsrc location=rtsp://admin:123456Ai@192.168.1.73:554/snl/live/1/1 latency=100 ! '
+        #     'decodebin ! videoconvert ! videoscale ! '
+        #     'video/x-raw,format=RGB,width=640,height=480 ! '
+        #     'appsink name=video_input'
+        # )
 
         # Optional: set width and height manually if needed
         self.video_width = 640
