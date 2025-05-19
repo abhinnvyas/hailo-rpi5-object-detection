@@ -15,6 +15,12 @@ from hailo_apps_infra.detection_pipeline import GStreamerDetectionApp
 
 rtsp_url = "rtsp://admin:123456Ai@192.168.1.73:554/snl/live/1/1" 
 
+"""gst-launch-1.0 rtspsrc location=rtsp://<your-stream> latency=200 ! \
+rtph264depay ! h264parse ! avdec_h264 ! videoconvert ! \
+video/x-raw,format=RGB,width=1280,height=720 ! \
+hailonet hef-path=/path/to/your.hef ! \
+fakesink"""
+
 class GStreamerRTSPApp(GStreamerDetectionApp):
     def __init__(self, app_callback, user_data, parser=None):
         super().__init__(app_callback, user_data, parser)
