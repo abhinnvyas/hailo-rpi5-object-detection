@@ -13,13 +13,15 @@ from hailo_apps_infra.hailo_rpi_common import (
 )
 from hailo_apps_infra.detection_pipeline import GStreamerDetectionApp
 
+rtsp_url = "rtsp://admin:123456Ai@192.168.1.73:554/snl/live/1/1" 
+
 class GStreamerRTSPApp(GStreamerDetectionApp):
     def __init__(self, app_callback, user_data, parser=None):
         super().__init__(app_callback, user_data, parser)
         
         # Override the video source pipeline with an RTSP stream
         self.video_source = (
-            'rtspsrc location=rtsp://your_camera_ip/stream latency=100 ! '
+            'rtspsrc location=rtsp://admin:123456Ai@192.168.1.73:554/snl/live/1/1 latency=100 ! '
             'decodebin ! videoconvert ! videoscale ! '
             'video/x-raw,format=RGB,width=640,height=480 ! '
             'appsink name=video_input'
