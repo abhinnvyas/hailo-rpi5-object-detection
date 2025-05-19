@@ -13,27 +13,21 @@ from hailo_apps_infra.hailo_rpi_common import (
 )
 from hailo_apps_infra.detection_pipeline import GStreamerDetectionApp
 
-from hailo_apps_infra.detection_pipeline import GStreamerDetectionApp
+class GStreamerRTSPApp(GStreamerDetectionApp):
+    def __init__(self, app_callback, user_data, parser=None):
+        super().__init__(app_callback, user_data, parser)
+        
+        # Override the video source pipeline with an RTSP stream
+        self.video_source = (
+            'rtspsrc location=rtsp://your_camera_ip/stream latency=100 ! '
+            'decodebin ! videoconvert ! videoscale ! '
+            'video/x-raw,format=RGB,width=640,height=480 ! '
+            'appsink name=video_input'
+        )
 
-class RTSPDetectionApp(GStreamerDetectionApp):
-    def __init__(self, callback, user_data):
-        super().__init__(callback, user_data)
-
-    def build_pipeline(self):
-        print(self.model_path)
-        pipeline = f"""
-        rtspsrc location=rtsp://<your-url> latency=100 !
-        decodebin !
-        videoconvert !
-        videoscale !
-        video/x-raw,format=RGB,width=640,height=480,framerate=30/1 !
-        queue !
-        hailonet model-path={self.model_path} !
-        hailofilter ! 
-        fakesink name=appsink emit-signals=true max-buffers=1 drop=true
-        """
-        return pipeline
-
+        # Optional: set width and height manually if needed
+        self.video_width = 640
+        self.video_height = 480
 #-----------------------------------------------------------
 # User-defined app callback class
 # -----------------------------------------------------------------------------------------------
@@ -95,5 +89,5 @@ def app_callback(pad, info, user_data):
 
 if __name__ == "__main__":
     user_data = user_app_callback_class()
-    app = RTSPDetectionApp(app_callback, user_data)
+    app = GStreamerRTSPApp(app_callback, user_data)
     app.run()
