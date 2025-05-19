@@ -20,6 +20,7 @@ class RTSPDetectionApp(GStreamerDetectionApp):
         super().__init__(callback, user_data)
 
     def build_pipeline(self):
+        print(self.model_path)
         pipeline = f"""
         rtspsrc location=rtsp://<your-url> latency=100 !
         decodebin !
