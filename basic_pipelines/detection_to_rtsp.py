@@ -29,6 +29,7 @@ class GStreamerRTSPApp(GStreamerDetectionApp):
         # )
 
         # Optional: set width and height manually if needed
+        self.get_pipeline_string()
         self.video_width = 640
         self.video_height = 480
 #-----------------------------------------------------------
