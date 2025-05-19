@@ -13,43 +13,27 @@ from hailo_apps_infra.hailo_rpi_common import (
 )
 from hailo_apps_infra.detection_pipeline import GStreamerDetectionApp
 
-# -----------------------------------------------------------------------------------------------
-# Define the pipeline components manually
-# -----------------------------------------------------------------------------------------------
+from hailo_apps_infra.detection_pipeline import GStreamerDetectionApp
 
-def SOURCE_PIPELINE(source="/dev/video0", width=640, height=480):
-    return f"v4l2src device={source} ! video/x-raw, width={width}, height={height}, format=YUY2 ! videoconvert"
+class RTSPDetectionApp(GStreamerDetectionApp):
+    def __init__(self, callback, user_data):
+        super().__init__(callback, user_data)
 
-def INFERENCE_PIPELINE(model_path="/home/pi/yolov5.hef"):
-    return f"hailonet hef-path={model_path} ! hailofilter"
+    def build_pipeline(self):
+        pipeline = f"""
+        rtspsrc location=rtsp://<your-url> latency=100 !
+        decodebin !
+        videoconvert !
+        videoscale !
+        video/x-raw,format=RGB,width=640,height=480,framerate=30/1 !
+        queue !
+        hailonet model-path={self.model_path} !
+        hailofilter ! 
+        fakesink name=appsink emit-signals=true max-buffers=1 drop=true
+        """
+        return pipeline
 
-def INFERENCE_PIPELINE_WRAPPER(inner):
-    return f"{inner}"
-
-def TRACKER_PIPELINE(class_id=1):
-    return f"hailotracker class-id={class_id}"
-
-def USER_CALLBACK_PIPELINE():
-    return "appsink name=appsink emit-signals=true"
-
-# -----------------------------------------------------------------------------------------------
-# Custom Detection App
-# -----------------------------------------------------------------------------------------------
-
-class CustomDetectionApp(GStreamerDetectionApp):
-    def get_pipeline_string(self):
-        pipeline_string = (
-            f'{SOURCE_PIPELINE(self.video_source, self.video_width, self.video_height)} ! '
-            f'{INFERENCE_PIPELINE_WRAPPER(INFERENCE_PIPELINE())} ! '
-            f'{TRACKER_PIPELINE(class_id=1)} ! '
-            f'{USER_CALLBACK_PIPELINE()} ! '
-            f'videoconvert ! x264enc tune=zerolatency bitrate=500 speed-preset=superfast ! '
-            f'rtph264pay config-interval=1 pt=96 ! udpsink host=127.0.0.1 port=5000'
-        )
-        print(pipeline_string)
-        return pipeline_string
-
-# -----------------------------------------------------------------------------------------------
+#-----------------------------------------------------------
 # User-defined app callback class
 # -----------------------------------------------------------------------------------------------
 
@@ -110,5 +94,5 @@ def app_callback(pad, info, user_data):
 
 if __name__ == "__main__":
     user_data = user_app_callback_class()
-    app = CustomDetectionApp(app_callback, user_data)
+    app = RTSPDetectionApp(app_callback, user_data)
     app.run()
