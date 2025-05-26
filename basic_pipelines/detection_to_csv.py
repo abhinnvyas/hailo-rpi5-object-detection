@@ -88,5 +88,9 @@ def app_callback(pad, info, user_data):
 # -----------------------------------------------------------------------------------------------
 if __name__ == "__main__":
     user_data = user_app_callback_class()
+    video_path = 'Videos/Video19.mp4' # Change this to your video file path
     app = GStreamerDetectionApp(app_callback, user_data)
+    app.video_source = video_path
+    app.create_pipeline()
     app.run()
+
