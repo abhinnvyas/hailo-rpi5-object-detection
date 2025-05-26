@@ -55,15 +55,15 @@ def app_callback(pad, info, user_data):
         bbox = detection.get_bbox()
         confidence = detection.get_confidence()
 
-        if label == "person":
-            track_id = 0
-            track = detection.get_objects_typed(hailo.HAILO_UNIQUE_ID)
-            if len(track) == 1:
-                track_id = track[0].get_id()
+        
+        track_id = 0
+        track = detection.get_objects_typed(hailo.HAILO_UNIQUE_ID)
+        if len(track) == 1:
+            track_id = track[0].get_id()
 
-            string_to_print += (f"Detection: ID: {track_id} Label: {label} Confidence: {confidence:.2f}\n")
-            detection_data.append([datetime.now().isoformat(), track_id, label, confidence])
-            detection_count += 1
+        string_to_print += (f"Detection: ID: {track_id} Label: {label} Confidence: {confidence:.2f}\n")
+        detection_data.append([datetime.now().isoformat(), track_id, label, confidence])
+        detection_count += 1
 
     # Save to CSV
     csv_file = "detections_log.csv"
