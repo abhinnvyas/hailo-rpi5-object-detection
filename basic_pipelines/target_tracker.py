@@ -87,7 +87,7 @@ def app_callback(pad, info, user_data):
         print(f"🔒 Tracking Track ID: {user_data.locked_track_id}"
               f" | Center: ({center_x:.2f}, {center_y:.2f})"
               f" | Frame Size: {user_data.frame_size}"
-              f" | Error: ({error_x:.3f}, {error_y:.3f
+              f" | Error: ({error_x:.3f}, {error_y:.3f}"
               f"x ={x1:.2f}, y={y1:.2f}, x={x2:.2f}, y={y2:.2f})")
         print(f"🎯 Target offset: x={error_x:.3f}, y={error_y:.3f}\n")
 
