@@ -99,8 +99,8 @@ def app_callback(pad, info, user_data):
 
         if user_data.use_frame and frame is not None:
             # Draw crosshairs
-            cv2.rectangle(frame, (int(x1), int(y1)), (int(x2), int(y2)), (255, 0, 0), 2)
-            cv2.line(frame, (int(frame_w/2), int(frame_h/2)), (int(center_x), int(center_y)), (0, 0, 255), 2)
+            cv2.rectangle(frame, (int(x1), int(y1)), (int(x2), int(y2)), (255, 0, 255), 2)
+            cv2.line(frame, (int(frame_w/2), int(frame_h/2)), (int(center_x), int(center_y)), (255, 0, 255), 2)
 
     if user_data.use_frame and frame is not None:
         cv2.putText(frame, f"Detections: {detection_count}", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
