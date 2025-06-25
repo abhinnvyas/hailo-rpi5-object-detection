@@ -72,7 +72,7 @@ def app_callback(pad, info, user_data):
 
             detection_count += 1
 
-    print(f"Locked Box: {locked_bbox}, Detection Count: {detection_count}")
+    print(f"Locked Box: {type(locked_bbox)}, Detection Count: {detection_count}")
 
     # 🔧 If locked target is found
     if locked_bbox:
