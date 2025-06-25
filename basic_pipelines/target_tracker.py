@@ -70,7 +70,6 @@ def app_callback(pad, info, user_data):
             if track_id == user_data.locked_track_id:
                 locked_bbox = bbox
 
-            string_to_print += f"Detection: ID: {track_id} Label: {label} Confidence: {confidence:.2f}\n"
             detection_count += 1
 
     # 🔧 If locked target is found
