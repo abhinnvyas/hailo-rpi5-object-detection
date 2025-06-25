@@ -76,7 +76,7 @@ def app_callback(pad, info, user_data):
 
     # 🔧 If locked target is found
     if locked_bbox:
-        x1, y1, x2, y2 = locked_bbox.xmin, locked_bbox.ymin, locked_bbox.xmax, locked_bbox.ymax
+        x1, y1, x2, y2 = locked_bbox.xmin(), locked_bbox.ymin(), locked_bbox.xmax(), locked_bbox.ymax()
         center_x = (x1 + x2) / 2
         center_y = (y1 + y2) / 2
         frame_w, frame_h = user_data.frame_size
