@@ -83,7 +83,12 @@ def app_callback(pad, info, user_data):
 
         error_x = (center_x - frame_w / 2) / frame_w  # -0.5 to 0.5
         error_y = (center_y - frame_h / 2) / frame_h
-
+        
+        print(f"🔒 Tracking Track ID: {user_data.locked_track_id}"
+              f" | Center: ({center_x:.2f}, {center_y:.2f})"
+              f" | Frame Size: {user_data.frame_size}"
+              f" | Error: ({error_x:.3f}, {error_y:.3f
+              f"x ={x1:.2f}, y={y1:.2f}, x={x2:.2f}, y={y2:.2f})")
         print(f"🎯 Target offset: x={error_x:.3f}, y={error_y:.3f}\n")
 
         # 🔧 Send to drone (serial or UDP)
