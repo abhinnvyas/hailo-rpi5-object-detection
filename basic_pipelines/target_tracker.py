@@ -72,11 +72,11 @@ def app_callback(pad, info, user_data):
 
             detection_count += 1
 
-    print(f"Locked Box: {dir(locked_bbox)}, Detection Count: {detection_count}")
+    # print(f"Locked Box: {dir(locked_bbox)}, Detection Count: {detection_count}")
 
     # 🔧 If locked target is found
     if locked_bbox:
-        x1, y1, x2, y2 = locked_bbox
+        x1, y1, x2, y2 = locked_bbox.xmin, locked_bbox.ymin, locked_bbox.xmax, locked_bbox.ymax
         center_x = (x1 + x2) / 2
         center_y = (y1 + y2) / 2
         frame_w, frame_h = user_data.frame_size
@@ -84,7 +84,7 @@ def app_callback(pad, info, user_data):
         error_x = (center_x - frame_w / 2) / frame_w  # -0.5 to 0.5
         error_y = (center_y - frame_h / 2) / frame_h
 
-        string_to_print += f"🎯 Target offset: x={error_x:.3f}, y={error_y:.3f}\n"
+        print(f"🎯 Target offset: x={error_x:.3f}, y={error_y:.3f}\n")
 
         # 🔧 Send to drone (serial or UDP)
         # try:
