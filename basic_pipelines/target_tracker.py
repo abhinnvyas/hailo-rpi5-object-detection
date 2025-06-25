@@ -36,7 +36,7 @@ def app_callback(pad, info, user_data):
         return Gst.PadProbeReturn.OK
 
     user_data.increment()
-    string_to_print = f"Frame count: {user_data.get_count()}\n"
+    # string_to_print = f"Frame count: {user_data.get_count()}\n"
 
     format, width, height = get_caps_from_pad(pad)
     user_data.frame_size = (width, height)  # 🔧 Store frame size for normalization
@@ -71,6 +71,8 @@ def app_callback(pad, info, user_data):
                 locked_bbox = bbox
 
             detection_count += 1
+
+    print(f"Locked Box: {locked_bbox}, Detection Count: {detection_count}")
 
     # 🔧 If locked target is found
     if locked_bbox:
