@@ -94,7 +94,7 @@ def app_callback(pad, info, user_data):
         print(f"🎯 Target offset: x={error_x:.3f}, y={error_y:.3f}\n")
 
         # Set movement thresholds
-        threshold = 0.1
+        threshold = 0.01
 
         if abs(error_x) < threshold and abs(error_y) < threshold:
             print("🟢 Target is centered, no movement needed.")
