@@ -81,8 +81,11 @@ def app_callback(pad, info, user_data):
         center_y = (y1 + y2) / 2
         frame_w, frame_h = user_data.frame_size
 
-        error_x = (center_x - frame_w / 2) / frame_w  # -0.5 to 0.5
-        error_y = (center_y - frame_h / 2) / frame_h
+        error_x = center_x - 0.5  # left/right deviation
+        error_y = center_y - 0.5  # up/down deviation
+
+        # error_x = (center_x - frame_w / 2) / frame_w  # -0.5 to 0.5
+        # error_y = (center_y - frame_h / 2) / frame_h
         
         print(f"🔒 Tracking Track ID: {user_data.locked_track_id}"
               f" | Center: ({center_x:.2f}, {center_y:.2f})"
