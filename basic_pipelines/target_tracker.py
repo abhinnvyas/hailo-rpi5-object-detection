@@ -93,6 +93,27 @@ def app_callback(pad, info, user_data):
               f" | x1={x1:.2f}, y1={y1:.2f}, x2={x2:.2f}, y2={y2:.2f})")
         print(f"🎯 Target offset: x={error_x:.3f}, y={error_y:.3f}\n")
 
+        # Set movement thresholds
+        threshold = 0.1
+
+        if abs(error_x) < threshold and abs(error_y) < threshold:
+            print("🟢 Target is centered, no movement needed.")
+            move_camera_horizontal = "center"
+            move_camera_vertical = "center"
+        else:
+            move_camera_horizontal = (
+            "left" if error_x > threshold else "right" if error_x < -threshold else "center"
+            )
+            move_camera_vertical = (
+            "down" if error_y > threshold else "up" if error_y < -threshold else "center"
+            )
+        
+        print(f"🔧 Move camera: "
+              f"Horizontal: {move_camera_horizontal}, Verical: {move_camera_vertical}")
+
+        # -x move camera right, +x move camera left
+        # -y move camera up, +y move camera down
+
         # 🔧 Send to drone (serial or UDP)
         # try:
         #     send_to_drone(error_x, error_y)
