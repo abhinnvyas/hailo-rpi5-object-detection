@@ -9,6 +9,9 @@ import serial  # 🔧 If you're using serial to talk to the drone
 import asyncio
 import websockets
 import threading
+import paho.mqtt.client as mqtt
+
+
 
 
 from hailo_apps_infra.hailo_rpi_common import (
@@ -175,13 +178,42 @@ def app_callback(pad, info, user_data):
 #         print("❌ Serial not open")
 
 # -----------------------------------------------------------------------------------------------
+
+def on_connect(client, userdata, flags, rc):
+    print("✅ Connected to broker")
+    client.subscribe("commands/target")
+
+def on_message(client, userdata, msg):
+    payload = msg.payload.decode()
+    print(f"📥 Received: {payload}")
+
+    if payload.startswith("SET_ID "):
+        try:
+            track_id = int(payload.split()[1])
+            userdata.locked_track_id = track_id
+            print(f"✅ Locked on ID {track_id}")
+        except ValueError:
+            print("❌ Invalid ID")
+    elif payload.strip() == "STOP":
+        userdata.locked_track_id = None
+        print("✅ Stopped tracking")
+    else:
+        print("❓ Unknown command")
+
+
 if __name__ == "__main__":
     user_data = user_app_callback_class()
-     # Start websocket client in background
-    def ws_client_runner():
-        asyncio.run(tracker_client(user_data))
 
-    threading.Thread(target=ws_client_runner, daemon=True).start()
-    
+    # Set up MQTT client
+    client = mqtt.Client(userdata=user_data)
+    client.on_connect = on_connect
+    client.on_message = on_message
+
+    client.connect("localhost", 1883, 60)
+    client.loop_start()
+
+    print("✅ MQTT client started and listening for commands...")
+
+    # Start GStreamer detection
     app = GStreamerDetectionApp(app_callback, user_data)
     app.run()

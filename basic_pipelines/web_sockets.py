@@ -1,69 +1,40 @@
-import asyncio
-from websockets.server import serve
+import paho.mqtt.client as mqtt
 
-connected_trackers = set()
+BROKER = "localhost"
+PORT = 1883
+TOPIC = "commands/target"
 
-async def handler(websocket):
-    print(f"✅ Tracker connected from {websocket.remote_address}")
-    connected_trackers.add(websocket)
-    try:
-        async for _ in websocket:
-            pass
-    except Exception as e:
-        print(f"⚠️ Error with {websocket.remote_address}: {e}")
-    finally:
-        print(f"⚠️ Tracker disconnected: {websocket.remote_address}")
-        connected_trackers.remove(websocket)
+def main():
+    client = mqtt.Client()
+    client.connect(BROKER, PORT, 60)
 
-async def broadcast(message):
-    if not connected_trackers:
-        print("⚠️ No connected trackers.")
-        return
-    print(f"📡 Broadcasting: {message}")
-    disconnected = []
-    for ws in connected_trackers:
-        try:
-            await ws.send(message)
-        except Exception:
-            print(f"⚠️ Client disconnected: {ws.remote_address}")
-            disconnected.append(ws)
-    for ws in disconnected:
-        connected_trackers.remove(ws)
+    print("✅ Connected to MQTT broker at {}:{}".format(BROKER, PORT))
+    print("Commands:")
+    print("1. Set Target ID")
+    print("2. Stop Tracking")
+    print("3. Quit")
 
-async def cli_loop():
     while True:
-        print("\nCommands:")
-        print("1. Set Target ID")
-        print("2. Stop Tracking")
-        print("3. Show Connected Clients")
-        print("4. Quit")
-        choice = input("> ").strip()
-
+        choice = input("\n> ").strip()
         if choice == "1":
-            target_id = input("Enter target Track ID: ").strip()
-            await broadcast(f"SET_ID {target_id}")
+            target_id = input("Enter Target Track ID: ").strip()
+            msg = f"SET_ID {target_id}"
+            client.publish(TOPIC, msg)
+            print(f"📤 Sent: {msg}")
 
         elif choice == "2":
-            await broadcast("STOP")
+            client.publish(TOPIC, "STOP")
+            print("📤 Sent: STOP")
 
         elif choice == "3":
-            print(f"🔎 Connected clients: {len(connected_trackers)}")
-            for ws in connected_trackers:
-                print(f" - {ws.remote_address}")
-
-        elif choice == "4":
-            print("👋 Shutting down.")
-            for ws in connected_trackers:
-                await ws.close()
+            print("👋 Exiting.")
             break
 
         else:
             print("❓ Invalid choice")
 
-async def main():
-    async with serve(handler, "localhost", 8765):
-        print("🌐 WebSocket server running at ws://localhost:8765")
-        await cli_loop()
+    client.disconnect()
+    print("✅ Disconnected from broker.")
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()
