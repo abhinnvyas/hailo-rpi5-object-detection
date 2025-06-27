@@ -89,14 +89,15 @@ def app_callback(pad, info, user_data):
 
         # 🔧 Lock target logic
         if label == "person":
-            if user_data.locked_track_id is None:
-                user_data.locked_track_id = track_id
-                print(f"🎯 Locked onto Track ID: {track_id}")
+            # if user_data.locked_track_id is None:
+            #     user_data.locked_track_id = track_id
+            #     print(f"🎯 Locked onto Track ID: {track_id}")
             
             if track_id == user_data.locked_track_id:
                 locked_bbox = bbox
 
             detection_count += 1
+        
         
         
     # print(f"Locked Box: {dir(locked_bbox)}, Detection Count: {detection_count}")
