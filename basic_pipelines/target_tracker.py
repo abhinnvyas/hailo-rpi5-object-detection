@@ -35,30 +35,31 @@ class UserDataServer:
     def __init__(self, user_data):
         self.user_data = user_data
 
-    async def handler(self, websocket, path):
-        print(f"🔌 Client connected: {websocket.remote_address}")
-        async for message in websocket:
-            print(f"📥 Received: {message}")
-            if message.startswith("SET_ID "):
-                try:
-                    track_id = int(message.split()[1])
-                    self.user_data.locked_track_id = track_id
-                    await websocket.send(f"✅ Locked on ID {track_id}")
-                    print(f"✅ Locked on ID {track_id}")
-                except Exception as e:
-                    await websocket.send(f"❌ Error: {e}")
-
-            elif message.strip() == "STOP":
-                self.user_data.locked_track_id = None
-                await websocket.send("✅ Stopped tracking")
-                print("✅ Stopped tracking")
-            else:
-                await websocket.send("❓ Unknown command")
-
     async def start_server(self):
-        server = await websockets.serve(self.handler, "localhost", 8765)
+        async def handler(websocket, path):
+            print(f"🔌 Client connected: {websocket.remote_address}")
+            async for message in websocket:
+                print(f"📥 Received: {message}")
+                if message.startswith("SET_ID "):
+                    try:
+                        track_id = int(message.split()[1])
+                        self.user_data.locked_track_id = track_id
+                        await websocket.send(f"✅ Locked on ID {track_id}")
+                        print(f"✅ Locked on ID {track_id}")
+                    except Exception as e:
+                        await websocket.send(f"❌ Error: {e}")
+
+                elif message.strip() == "STOP":
+                    self.user_data.locked_track_id = None
+                    await websocket.send("✅ Stopped tracking")
+                    print("✅ Stopped tracking")
+                else:
+                    await websocket.send("❓ Unknown command")
+
+        server = await websockets.serve(handler, "localhost", 8765)
         print("🌐 WebSocket server running at ws://localhost:8765")
         await server.wait_closed()
+
 
 
 
@@ -194,6 +195,7 @@ def app_callback(pad, info, user_data):
 if __name__ == "__main__":
     user_data = user_app_callback_class()
       # Start WebSocket server in separate thread
+     # Start WebSocket server in a separate thread
     server = UserDataServer(user_data)
     loop = asyncio.new_event_loop()
 
@@ -201,7 +203,10 @@ if __name__ == "__main__":
         asyncio.set_event_loop(loop)
         loop.run_until_complete(server.start_server())
 
+    # Start WebSocket thread (daemon so it closes with main process)
     threading.Thread(target=run_ws_server, daemon=True).start()
+
+    print("✅ WebSocket server thread started")
 
 
     app = GStreamerDetectionApp(app_callback, user_data)
