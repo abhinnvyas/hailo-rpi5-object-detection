@@ -114,6 +114,8 @@ def app_callback(pad, info, user_data):
 
         error_x = (center_x * frame_w  - frame_w / 2) / frame_w  # -0.5 to 0.5
         error_y = (center_y * frame_h - frame_h / 2) / frame_h
+
+        print(f"="*50)
         
         print(f"🔒 Tracking Track ID: {user_data.locked_track_id}"
               f" | Center: ({center_x:.2f}, {center_y:.2f})"
@@ -138,6 +140,8 @@ def app_callback(pad, info, user_data):
         
         print(f"🔧 Move camera: "
               f"Horizontal: {move_camera_horizontal}, Verical: {move_camera_vertical}")
+        
+        print(f"="*50)
 
         # -x move camera right, +x move camera left
         # -y move camera up, +y move camera down
