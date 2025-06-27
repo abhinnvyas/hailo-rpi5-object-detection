@@ -55,8 +55,11 @@ class UserDataServer:
             else:
                 await websocket.send("❓ Unknown command")
 
-    def start_server(self):
-        return websockets.serve(self.handler, "localhost", 8765)
+    async def start_server(self):
+        server = await websockets.serve(self.handler, "localhost", 8765)
+        print("🌐 WebSocket server running at ws://localhost:8765")
+        await server.wait_closed()
+
 
 
 # -----------------------------------------------------------------------------------------------
@@ -193,9 +196,13 @@ if __name__ == "__main__":
       # Start WebSocket server in separate thread
     server = UserDataServer(user_data)
     loop = asyncio.new_event_loop()
-    threading.Thread(target=loop.run_forever, daemon=True).start()
-    asyncio.run_coroutine_threadsafe(server.start_server(), loop)
-    print("🌐 WebSocket server running at ws://localhost:8765")
+
+    def run_ws_server():
+        asyncio.set_event_loop(loop)
+        loop.run_until_complete(server.start_server())
+
+    threading.Thread(target=run_ws_server, daemon=True).start()
+
 
     app = GStreamerDetectionApp(app_callback, user_data)
     app.run()
