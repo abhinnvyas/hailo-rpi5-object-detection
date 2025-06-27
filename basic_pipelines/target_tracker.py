@@ -7,9 +7,6 @@ import cv2
 import hailo
 import serial  # 🔧 If you're using serial to talk to the drone
 
-import asyncio
-import websockets
-import threading
 
 from hailo_apps_infra.hailo_rpi_common import (
     get_caps_from_pad,
@@ -31,45 +28,6 @@ class user_app_callback_class(app_callback_class):
     def new_function(self):
         return "The meaning of life is: "
     
-class UserDataServer:
-    def __init__(self, user_data):
-        self.user_data = user_data
-
-    async def start_server(self):
-        async def handler(websocket, path):
-            print(f"🔌 Client connected: {websocket.remote_address}")
-            async for message in websocket:
-                print(f"📥 Received: {message}")
-                if message.startswith("SET_ID "):
-                    try:
-                        track_id = int(message.split()[1])
-                        self.user_data.locked_track_id = track_id
-                        await websocket.send(f"✅ Locked on ID {track_id}")
-                        print(f"✅ Locked on ID {track_id}")
-                    except Exception as e:
-                        await websocket.send(f"❌ Error: {e}")
-
-                elif message.strip() == "STOP":
-                    self.user_data.locked_track_id = None
-                    await websocket.send("✅ Stopped tracking")
-                    print("✅ Stopped tracking")
-                else:
-                    await websocket.send("❓ Unknown command")
-
-        print("🌐 Starting WebSocket server...")
-        async with websockets.serve(handler, "localhost", 8765):
-            await asyncio.Future()
-
-
-
-async def start_websocket_server(user_data):
-    server = UserDataServer(user_data)
-    print("🌐 Starting WebSocket server on ws://localhost:8765")
-    async with websockets.serve(server.handler(), "localhost", 8765):
-        await asyncio.Future()  # run forever
-
-
-
 # -----------------------------------------------------------------------------------------------
 # Callback function
 # -----------------------------------------------------------------------------------------------
@@ -105,21 +63,17 @@ def app_callback(pad, info, user_data):
             track_id = track[0].get_id()
 
         # 🔧 Lock target logic
-        # if label == "person":
-        #     if user_data.locked_track_id is None:
-        #         user_data.locked_track_id = track_id
-        #         print(f"🎯 Locked onto Track ID: {track_id}")
-            
-        #     if track_id == user_data.locked_track_id:
-        #         locked_bbox = bbox
-
-        #     detection_count += 1
-        
         if label == "person":
-            if user_data.locked_track_id == track_id:
+            if user_data.locked_track_id is None:
+                user_data.locked_track_id = track_id
+                print(f"🎯 Locked onto Track ID: {track_id}")
+            
+            if track_id == user_data.locked_track_id:
                 locked_bbox = bbox
-            detection_count += 1
 
+            detection_count += 1
+        
+        
     # print(f"Locked Box: {dir(locked_bbox)}, Detection Count: {detection_count}")
 
     # 🔧 If locked target is found
@@ -201,15 +155,5 @@ def app_callback(pad, info, user_data):
 # -----------------------------------------------------------------------------------------------
 if __name__ == "__main__":
     user_data = user_app_callback_class()
-      # Start WebSocket server in separate thread
-     # Start WebSocket server in a separate thread
-    # Start the websocket server in background
-    def run_websocket_server():
-        asyncio.run(UserDataServer(user_data).start_server())
-
-    threading.Thread(target=run_websocket_server, daemon=True).start()
-    print("✅ WebSocket server thread started")
-
-    # GStreamer pipeline must run in main thread
     app = GStreamerDetectionApp(app_callback, user_data)
-    app.run()  # This blocks
+    app.run()
