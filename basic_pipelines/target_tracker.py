@@ -56,10 +56,11 @@ class UserDataServer:
                 else:
                     await websocket.send("❓ Unknown command")
 
-        server = await websockets.serve(handler, "localhost", 8765)
-        print("🌐 WebSocket server running at ws://localhost:8765")
-        await server.wait_closed()
-
+async def start_websocket_server(user_data):
+    server = UserDataServer(user_data)
+    print("🌐 Starting WebSocket server on ws://localhost:8765")
+    async with websockets.serve(server.handler, "localhost", 8765):
+        await asyncio.Future()  # run forever
 
 
 
@@ -196,18 +197,15 @@ if __name__ == "__main__":
     user_data = user_app_callback_class()
       # Start WebSocket server in separate thread
      # Start WebSocket server in a separate thread
-    server = UserDataServer(user_data)
-    loop = asyncio.new_event_loop()
+    # Start the GStreamer pipeline in a *separate thread*
+    def run_gstreamer():
+        app = GStreamerDetectionApp(app_callback, user_data)
+        app.run()
 
-    def run_ws_server():
-        asyncio.set_event_loop(loop)
-        loop.run_until_complete(server.start_server())
+    gst_thread = threading.Thread(target=run_gstreamer, daemon=True)
+    gst_thread.start()
+    print("✅ GStreamer pipeline thread started")
 
-    # Start WebSocket thread (daemon so it closes with main process)
-    threading.Thread(target=run_ws_server, daemon=True).start()
+    # Run the websocket server in the *main thread's* asyncio loop
+    asyncio.run(start_websocket_server(user_data))
 
-    print("✅ WebSocket server thread started")
-
-
-    app = GStreamerDetectionApp(app_callback, user_data)
-    app.run()
