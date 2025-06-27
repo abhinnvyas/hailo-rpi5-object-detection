@@ -203,13 +203,13 @@ if __name__ == "__main__":
     user_data = user_app_callback_class()
       # Start WebSocket server in separate thread
      # Start WebSocket server in a separate thread
-    def run_gstreamer():
-        app = GStreamerDetectionApp(app_callback, user_data)
-        app.run()
+    # Start the websocket server in background
+    def run_websocket_server():
+        asyncio.run(UserDataServer(user_data).start_server())
 
-    threading.Thread(target=run_gstreamer, daemon=True).start()
-    print("✅ GStreamer pipeline thread started")
+    threading.Thread(target=run_websocket_server, daemon=True).start()
+    print("✅ WebSocket server thread started")
 
-    # Run websocket server
-    server = UserDataServer(user_data)
-    asyncio.run(server.start_server())
+    # GStreamer pipeline must run in main thread
+    app = GStreamerDetectionApp(app_callback, user_data)
+    app.run()  # This blocks
