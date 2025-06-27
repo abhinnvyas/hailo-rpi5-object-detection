@@ -35,31 +35,31 @@ class UserDataServer:
     def __init__(self, user_data):
         self.user_data = user_data
 
-    async def start_server(self):
-        async def handler(websocket, path):
-            print(f"🔌 Client connected: {websocket.remote_address}")
-            async for message in websocket:
-                print(f"📥 Received: {message}")
-                if message.startswith("SET_ID "):
-                    try:
-                        track_id = int(message.split()[1])
-                        self.user_data.locked_track_id = track_id
-                        await websocket.send(f"✅ Locked on ID {track_id}")
-                        print(f"✅ Locked on ID {track_id}")
-                    except Exception as e:
-                        await websocket.send(f"❌ Error: {e}")
+    async def handler(self, websocket, path):
+        print(f"🔌 Client connected: {websocket.remote_address}")
+        async for message in websocket:
+            print(f"📥 Received: {message}")
+            if message.startswith("SET_ID "):
+                try:
+                    track_id = int(message.split()[1])
+                    self.user_data.locked_track_id = track_id
+                    await websocket.send(f"✅ Locked on ID {track_id}")
+                    print(f"✅ Locked on ID {track_id}")
+                except Exception as e:
+                    await websocket.send(f"❌ Error: {e}")
 
-                elif message.strip() == "STOP":
-                    self.user_data.locked_track_id = None
-                    await websocket.send("✅ Stopped tracking")
-                    print("✅ Stopped tracking")
-                else:
-                    await websocket.send("❓ Unknown command")
+            elif message.strip() == "STOP":
+                self.user_data.locked_track_id = None
+                await websocket.send("✅ Stopped tracking")
+                print("✅ Stopped tracking")
+            else:
+                await websocket.send("❓ Unknown command")
+
 
 async def start_websocket_server(user_data):
     server = UserDataServer(user_data)
     print("🌐 Starting WebSocket server on ws://localhost:8765")
-    async with websockets.serve(server.handler, "localhost", 8765):
+    async with websockets.serve(server.handler(), "localhost", 8765):
         await asyncio.Future()  # run forever
 
 
