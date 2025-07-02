@@ -72,6 +72,8 @@ def app_callback(pad, info, user_data):
                 locked_bbox = bbox
 
             detection_count += 1
+        else:
+            roi.remove_object(detection)
         
         
     # print(f"Locked Box: {dir(locked_bbox)}, Detection Count: {detection_count}")
