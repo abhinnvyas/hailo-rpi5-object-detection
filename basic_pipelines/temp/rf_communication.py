@@ -1,39 +1,31 @@
 import serial
-import signal
-import sys
+import time
 
-# UART Configuration
-SERIAL_PORT = "/dev/ttyUSB0"
-BAUD_RATE = 57600
+# === CONFIGURATION ===
+SERIAL_PORT = '/dev/serial0'   # Or /dev/ttyAMA0, /dev/ttyS0, etc.
+BAUD_RATE = 115200
+TIMEOUT = 1  # seconds
 
-# Global variable for the serial connection
-ser = None
+def main():
+    try:
+        ser = serial.Serial(SERIAL_PORT, BAUD_RATE, timeout=TIMEOUT)
+        print(f"✅ Serial port {SERIAL_PORT} opened at {BAUD_RATE} baud.")
 
-def signal_handler(sig, frame):
-    print("\n🔴 Exiting gracefully...")
-    if ser and ser.is_open:
-        ser.close()
-        print("✅ Serial Port Closed.")
-    sys.exit(0)
+        while True:
+            if ser.in_waiting > 0:
+                line = ser.readline().decode('utf-8', errors='replace').strip()
+                print(f"📨 Received: {line}")
 
-# Register Ctrl+C handler
-signal.signal(signal.SIGINT, signal_handler)
+            time.sleep(0.1)
 
-try:
-    ser = serial.Serial(SERIAL_PORT, BAUD_RATE, timeout=1)
-    print("✅ Serial Port Opened!")
-except serial.SerialException:
-    print(f"❎ Failed to open serial port {SERIAL_PORT}")
-    sys.exit(1)
+    except serial.SerialException as e:
+        print(f"❌ Serial error: {e}")
+    except KeyboardInterrupt:
+        print("\n🛑 Exiting.")
+    finally:
+        if 'ser' in locals() and ser.is_open:
+            ser.close()
+            print(f"✅ Serial port {SERIAL_PORT} closed.")
 
-# Main read loop
-print("🟢 Reading from serial port. Press Ctrl+C to stop.")
-
-try:
-    while True:
-        if ser.in_waiting > 0:
-            line = ser.readline().decode('utf-8', errors='replace').strip()
-            if line:
-                print(f"📥 Received: {line}")
-except KeyboardInterrupt:
-    signal_handler(None, None)
+if __name__ == '__main__':
+    main()
