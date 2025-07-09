@@ -69,8 +69,8 @@ def app_callback(pad, info, user_data):
                 track_id = track[0].get_id()
             string_to_print += (f"Detection: ID: {track_id} Label: {label} Confidence: {confidence:.2f}\n")
             detection_count += 1
-        # else:
-        #     roi.remove_object(detection)
+        else:
+            roi.remove_object(detection)
         
     if user_data.use_frame:
         # Note: using imshow will not work here, as the callback function is not running in the main thread
