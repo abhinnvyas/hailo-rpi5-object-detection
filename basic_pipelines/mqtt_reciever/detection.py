@@ -18,11 +18,14 @@ from hailo_apps_infra.hailo_rpi_common import (
 from hailo_apps_infra.detection_pipeline import GStreamerDetectionApp
 
 # ---------------------- MQTT Configuration ----------------------
-MQTT_BROKER = "your-broker-url"      # e.g., "broker.hivemq.com"
-MQTT_PORT = 1883                     # or 8883 for TLS
-MQTT_TOPIC = "hailo/detections"
+MQTT_BROKER = "85ad5e2bc01647b994c1740438b3c4f8.s1.eu.hivemq.cloud"      # e.g., "broker.hivemq.com"
+MQTT_PORT = 8883                     # or 8883 for TLS
+MQTT_TOPIC = "app/detection"
+MQTT_USERNAME = "hivemq.webclient.1753169368616"
+MQTT_PASSWORD = "EB<0!.*im5AyDCFarb12"
 
 mqtt_client = mqtt.Client()
+mqtt_client.username_pw_set(MQTT_USERNAME, MQTT_PASSWORD)
 mqtt_client.connect(MQTT_BROKER, MQTT_PORT, 60)
 
 # ---------------------- Custom Callback Class ----------------------
