@@ -54,12 +54,12 @@ def on_message(client, userdata, msg):
     print(f"[MQTT] {topic}: {payload}")
 
     if topic == "app/control/detection":
-        handle_program("detection", "python3 detection.py", payload)
+        handle_program("detection", "python3 ../detection.py", payload)
 
     elif topic == "app/control/face_recognition":
         handle_program(
             "face_recognition",
-            "python3 ../venv_hailo_rpi_examples/lib64/python3.11/site-packages/hailo_apps/hailo_app_python/apps/face_recognition/face_recognition.py",
+            "python3 ../../venv_hailo_rpi_examples/lib64/python3.11/site-packages/hailo_apps/hailo_app_python/apps/face_recognition/face_recognition.py",
             payload
         )
 
